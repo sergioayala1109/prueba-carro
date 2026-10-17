@@ -11,7 +11,8 @@
 **Marca:** **Monsant · Estudio Creativo**
 **Tipo:** Vitrina / catálogo web (sitio de una sola página) para un emprendimiento de papelería y regalos personalizados.
 **Ubicación del negocio:** Cruz 395, Constitución, Maule, Chile.
-**Estado general:** ✅ Funcional y navegable, versionado en GitHub. Compila (`npm run build`) y corre en desarrollo sin errores de consola. Falta pulido de contenidos y despliegue.
+**Estado general:** ✅ **Publicado y en línea.** Compila (`npm run build`), corre en desarrollo sin errores de consola y se despliega automáticamente en GitHub Pages con cada push a `main`.
+**Sitio en vivo:** https://sergioayala1109.github.io/prueba-carro/
 **Repositorio:** https://github.com/sergioayala1109/prueba-carro (público, rama `main`)
 
 ### Qué es
@@ -51,11 +52,13 @@ Requisitos: **Node.js** (probado con v22.2.0) y **npm** (probado con 10.7.0).
 cd /Users/sergioayala/Documents/prueba-carro
 
 npm install        # solo la primera vez
-npm run dev        # servidor de desarrollo → http://localhost:5173/
+npm run dev        # servidor de desarrollo → http://localhost:5173/prueba-carro/
 npm run build      # genera la carpeta dist/ lista para publicar
-npm run preview    # sirve la versión de producción de dist/
+npm run preview    # sirve la versión de producción → http://localhost:4173/prueba-carro/
 npm run lint       # oxlint
 ```
+
+> Nota: por la ruta base del despliegue (`/prueba-carro/`), **dev y preview ya no responden en `/`**: hay que entrar con la subruta `prueba-carro/`.
 
 Para que el servidor de dev se vea desde otros dispositivos de la red local:
 
@@ -70,16 +73,19 @@ npm run dev -- --host
 ```
 prueba-carro/
 ├── index.html                 # HTML raíz (título, meta description, favicon)
-├── vite.config.js             # config mínima (plugin React)
+├── vite.config.js             # config (plugin React + base '/prueba-carro/')
 ├── package.json               # scripts y dependencias
 ├── CREDITOS.md                # origen y licencias de las imágenes
 ├── PROJECT_CONTEXT.md         # este documento
 ├── README.md                  # genérico de la plantilla Vite (sin usar)
+├── .github/
+│   └── workflows/
+│       └── deploy.yml         # CI: build + despliegue automático a GitHub Pages
 ├── public/
 │   ├── favicon.svg            # sí se usa (index.html)
 │   ├── icons.svg              # ⚠️ sin usar (residuo de plantilla)
 │   └── productos/             # 48 imágenes (12 productos × 4)
-├── dist/                      # build de producción (generado)
+├── dist/                      # build de producción (generado, no versionado)
 └── src/
     ├── main.jsx               # punto de entrada (React StrictMode)
     ├── index.css              # estilos base / reset
@@ -89,6 +95,8 @@ prueba-carro/
     │   ├── hero.png
     │   ├── react.svg
     │   └── vite.svg
+    ├── utils/
+    │   └── urls.js            # rutaPublica(): antepone la ruta base a public/
     ├── data/
     │   ├── negocio.js          # marca, misión, dirección, teléfono, redes, horario
     │   └── productos.js        # 12 productos + categorías
@@ -144,6 +152,13 @@ prueba-carro/
 - Se respetó la estructura `NN-slug.jpg` (portada) + `-2`, `-3`, `-4` (galería), sin repetir imágenes entre categorías.
 - Se documentó todo en `CREDITOS.md` (incluida la advertencia de licencias).
 
+### Fase 9 — Publicación en GitHub Pages
+- **Repositorio propio** creado en la carpeta del proyecto (`main`), con `.gitignore` para `node_modules`/`dist`.
+- **Ruta base:** `vite.config.js` fija `base: '/prueba-carro/'`, porque Pages publica el sitio en una subruta (`usuario.github.io/prueba-carro/`).
+- **Rutas de imágenes con base:** se creó `src/utils/urls.js` con `rutaPublica()`, que antepone `import.meta.env.BASE_URL` a las rutas de `public/`. `productos.js` (48 imágenes) y `Hero.jsx` (collage) pasan por ahí, así que funcionan igual en local y en producción.
+- **CI/CD:** `.github/workflows/deploy.yml` compila (`npm ci` + `vite build`) y publica en Pages en cada push a `main` (y también a mano con `workflow_dispatch`).
+- **Verificación en producción:** 20 imágenes en portada + 5 de la galería del modal cargando desde `/prueba-carro/productos/...`, CSS aplicado y consola **sin errores**.
+
 ---
 
 ## 6. Decisiones técnicas importantes
@@ -159,6 +174,7 @@ prueba-carro/
 8. **Moneda con `Intl`.** `formatoPrecio()` con `es-CL` y `maximumFractionDigits: 0` (los pesos chilenos no usan decimales).
 9. **Imágenes 100 % locales.** Todo vive en `public/productos/`, sin dependencias externas en tiempo de ejecución (más rápido y sin enlaces rotos).
 10. **Accesibilidad básica.** `aria-label` en navegaciones, `alt` en imágenes, `role="tablist"` en filtros, cierre del modal con Escape y foco gestionado, `StrictMode` activo.
+11. **Ruta base configurable para el despliegue.** En vez de escribir rutas absolutas (`/productos/...`, que se rompen en una subruta), se usa `import.meta.env.BASE_URL` a través de `rutaPublica()` (`src/utils/urls.js`). En desarrollo la base es `/` y en Pages `/prueba-carro/`; el mismo código sirve en ambos entornos sin cambios.
 
 ---
 
@@ -178,6 +194,10 @@ prueba-carro/
 | 10 | El servidor de desarrollo se detenía y la página no cargaba | Se documentó cómo levantarlo (`npm run dev`, en segundo plano) y verificarlo con `curl` |
 | 11 | `setTimeout` no existe en el runtime de Code Mode | Se ejecutó la espera dentro del navegador (`browser.evaluate`) en vez del runtime |
 | 12 | El modelo no puede "ver" imágenes | Se usa un script de OCR/paleta (`swift analyze.swift`) para leer capturas, y las capturas se muestran al usuario en el panel de revisión |
+| 13 | En GitHub Pages las imágenes y el CSS daban **404** (el sitio vive en la subruta `/prueba-carro/`, no en la raíz) | `base: '/prueba-carro/'` en `vite.config.js` + helper `rutaPublica()` para las rutas de `public/` |
+| 14 | El run #1 del workflow falló: `Get Pages site failed. Please verify that the repository has Pages enabled and configured to build using GitHub Actions` | Faltaba habilitar Pages. Se intentó con `enablement: true` en `configure-pages` (no funcionó) |
+| 15 | El run #2 falló: `Create Pages site failed. Resource not accessible by integration` — el `GITHUB_TOKEN` **no puede crear** el sitio de Pages | Se quitó `enablement: true` y se habilitó Pages **a mano** una sola vez (Settings → Pages → Source: GitHub Actions). El run #3 pasó ✅ |
+| 16 | Aviso de que Node 20 está deprecado en las acciones | Se subieron `actions/checkout` y `actions/setup-node` a `v5` |
 
 > Nota: `--verde` sigue definido en el CSS y se usa únicamente en el **tilde (✓)** de la lista de detalles del modal. No es un botón; quedó pendiente decidir si se cambia al rosa/lila.
 
@@ -200,7 +220,7 @@ prueba-carro/
 ### Prioridad baja
 7. **SEO / metadatos:** Open Graph (imagen para compartir en redes), favicon propio de la marca, `sitemap.xml`, datos estructurados.
 8. **Limpieza de residuos de plantilla:** `src/assets/hero.png`, `src/assets/react.svg`, `src/assets/vite.svg`, `public/icons.svg` y el `README.md` genérico.
-9. **Despliegue web:** el `build` ya funciona y el código está en GitHub; falta publicar (GitHub Pages, Netlify, Vercel), elegir dominio y probar la versión de producción.
+9. **Sitio publicado** en GitHub Pages (https://sergioayala1109.github.io/prueba-carro/). Pendiente menor: evaluar un **dominio propio** (ej. `monsant.cl`) y revisar el sitio ya en producción.
 10. **Pulido de accesibilidad y contraste** (foco visible, textos alternativos más descriptivos).
 
 ---
@@ -217,9 +237,13 @@ prueba-carro/
 ## 10. Notas de entorno y herramientas
 
 - **Fecha de esta actualización:** 17 de octubre de 2026.
-- **Servidor de desarrollo:** `http://localhost:5173/` (Vite 6.4.4).
+- **Servidor de desarrollo:** `http://localhost:5173/prueba-carro/` (Vite 6.4.4). Ojo: desde que se fijó la ruta base, **ya no responde en `/`**, sino en `/prueba-carro/`.
+- **Sitio en producción:** https://sergioayala1109.github.io/prueba-carro/ (GitHub Pages).
 - **Repositorio Git:** propio, dentro de la carpeta del proyecto. Remoto `git@github.com:sergioayala1109/prueba-carro.git`, rama `main` (público).
-- **`dist/`** ya generado por un `npm run build` exitoso (no se versiona).
+- **Despliegue:** automático. Un `git push` a `main` dispara `.github/workflows/deploy.yml`; tarda ~35 s. Se puede relanzar desde la pestaña **Actions** (`workflow_dispatch`).
+- **Pages debe estar habilitado** con *Source: GitHub Actions* en Settings → Pages. El `GITHUB_TOKEN` del workflow **no** puede habilitarlo por sí solo.
+- **`dist/`** no se versiona: lo genera el workflow.
+- Para probar el build localmente igual que en producción: `npm run build` y luego `npm run preview` (sirve en `http://localhost:4173/prueba-carro/`).
 - El asistente **no puede ver imágenes**: para analizar capturas se usa OCR + extracción de paleta con Swift (`analyze.swift`), y las capturas se muestran al usuario en el panel de revisión.
 - Las capturas de pantalla en macOS pueden tener caracteres invisibles (U+202F) en el nombre; referenciarlas con `find`/globs.
 
