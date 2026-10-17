@@ -192,6 +192,13 @@ prueba-carro/
 - **Panel:** pestañas "Productos" / "Datos y textos", aviso visible de que es una demo sin seguridad y botón "Restablecer originales" (se deshabilita si no hay cambios).
 - **Verificado en el navegador:** acceso con credenciales incorrectas (muestra error) y correctas; alta, edición, duplicado y borrado de productos; edición de teléfono/misión/textos reflejada en la vitrina (los 21 enlaces de WhatsApp cambian de número); restablecer; salir; y **0 errores de consola** en la vitrina y en el panel.
 
+### Fase 11 — Ficha de producto: foto a todo el recuadro + zoom al pasar el mouse
+- **Pedido:** que la imagen del detalle "ocupe todo el recuadro" y que al poner el mouse encima haga zoom.
+- **Cambio de `object-fit`:** `contain` → `cover` en la foto principal del modal (`.modal__principal img`). La foto ya no deja bandas de fondo vacías.
+- **Zoom al hover:** `transition: transform 0.3s` + `.modal__principal:hover img { transform: scale(1.15) }`, recortado por `overflow: hidden` del recuadro. El crecimiento está limitado a `@media (hover: hover) and (pointer: fine)` para no dejar efectos "pegados" en táctil. Cursor `zoom-in`.
+- **Lupa:** se probó y luego **se quitó** (commit `6f2101a`): había estado y handlers de puntero en `ProductoModal.jsx` que se eliminaron junto con su CSS (`.modal__lupa`). Si vuelve a pedirse, está documentada en el historial de git.
+- **Verificado:** `.modal__imagen` con `object-fit: cover`, `transitionProperty: transform`, sin nodos `.modal__lupa`, media queries `hover`/`pointer` activas y **0 errores de consola**.
+
 ---
 
 ## 6. Decisiones técnicas importantes
@@ -201,7 +208,7 @@ prueba-carro/
    - Paleta: `--crema #fdf7fb`, `--crema-2 #f8e9f4`, `--rosa #c06c9f`, `--rosa-oscuro #a1507f`, `--lila #b583d6`, `--ciruela #581868`, `--ciruela-oscuro #3d0f47`, `--verde #4c9e73` (residual), `--tinta #46243f`, `--tinta-suave #856a80`, `--borde #f0ddeb`.
 3. **Modelo de imágenes: `imagenes[]`.** La primera es la portada; las demás forman la galería del modal. Si una imagen no existe, se omite; si falla la carga, se muestra el `icono` (emoji) como respaldo.
 4. **Estado del modal en `App.jsx`.** `useState(productoActivo)`; se pasa `onVerDetalle` a `Destacados` y `Catalogo`. Un solo modal global en vez de uno por tarjeta.
-5. **Objetos de imagen `object-fit: contain` en el modal.** Las fotos tienen orientaciones mixtas (vertical/horizontal/cuadrada); `contain` evita recortes deformes. En las tarjetas se usa recorte (`cover`) para uniformar la grilla.
+5. **Objetos de imagen `object-fit: cover` en el modal.** La ficha de producto usa `cover` para que la foto **llene todo el recuadro** (pedido del cliente); al sobrar o faltar, se recorta de forma proporcional. En las tarjetas también se usa `cover` para uniformar la grilla. Ojo: `contain` se abandonó porque dejaba márgenes que no gustaron.
 6. **Conversión por WhatsApp.** No hay carrito ni pasarela de pago: todos los CTA llevan a `https://wa.me/56984536000` con un mensaje precargado (`?text=`). Es el canal principal del negocio.
 7. **Políticas del footer → WhatsApp.** Como no existen páginas reales de "Plazos de despacho", "Cambios y devoluciones", etc., cada enlace abre WhatsApp con una pregunta precargada (`consulta` en `negocio.js`).
 8. **Moneda con `Intl`.** `formatoPrecio()` con `es-CL` y `maximumFractionDigits: 0` (los pesos chilenos no usan decimales).
