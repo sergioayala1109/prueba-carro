@@ -38,6 +38,45 @@ export default function AdminPanel() {
   // con los valores originales (si no, conservaría el borrador anterior).
   const [versionFormulario, setVersionFormulario] = useState(0);
 
+  // --- Filtros de la lista de productos ---
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroCategoria, setFiltroCategoria] = useState('Todos');
+  const [filtroDestacado, setFiltroDestacado] = useState('todos');
+
+  // Si la categoría elegida ya no existe (ej. se borró el último producto),
+  // el filtro se comporta como "Todas".
+  const categoriaFiltro = categorias.includes(filtroCategoria)
+    ? filtroCategoria
+    : 'Todos';
+
+  const coincide = (producto) => {
+    if (categoriaFiltro !== 'Todos' && producto.categoria !== categoriaFiltro) {
+      return false;
+    }
+    if (filtroDestacado === 'destacados' && !producto.destacado) return false;
+    if (filtroDestacado === 'sin-destacar' && producto.destacado) return false;
+
+    const texto = busqueda.trim().toLowerCase();
+    if (!texto) return true;
+    return [
+      producto.nombre,
+      producto.categoria,
+      producto.medidas,
+      producto.descripcion,
+    ].some((valor) => String(valor ?? '').toLowerCase().includes(texto));
+  };
+
+  const productosFiltrados = productosCrudos.filter(coincide);
+
+  const hayFiltros =
+    busqueda.trim() !== '' || categoriaFiltro !== 'Todos' || filtroDestacado !== 'todos';
+
+  const limpiarFiltros = () => {
+    setBusqueda('');
+    setFiltroCategoria('Todos');
+    setFiltroDestacado('todos');
+  };
+
   const guardarProducto = (producto) => {
     const existe = productosCrudos.some((p) => p.id === producto.id);
     const siguientes = existe
@@ -47,7 +86,14 @@ export default function AdminPanel() {
     const resultado = guardarProductos(siguientes);
     if (resultado.ok) {
       setEditor(null);
-      setAviso({ tipo: 'ok', texto: `Producto "${producto.nombre}" guardado.` });
+      // Si el producto guardado no pasa los filtros activos, se limpian para
+      // que no parezca que el cambio no se guardó.
+      const oculto = hayFiltros && !coincide(producto);
+      if (oculto) limpiarFiltros();
+      setAviso({
+        tipo: 'ok',
+        texto: `Producto "${producto.nombre}" guardado.${oculto ? ' Se limpiaron los filtros para mostrarlo.' : ''}`,
+      });
     } else {
       setAviso({ tipo: 'error', texto: resultado.error });
     }
@@ -206,67 +252,140 @@ export default function AdminPanel() {
                 No hay productos. Agrega el primero con el botón de arriba.
               </p>
             ) : (
-              <ul className="lista-productos">
-                {productosCrudos.map((producto) => (
-                  <li className="producto-fila" key={producto.id}>
-                    <span className="producto-fila__foto">
-                      {producto.imagenes?.[0] ? (
-                        <img src={rutaPublica(producto.imagenes[0])} alt="" />
-                      ) : (
-                        <span aria-hidden="true">{producto.icono}</span>
-                      )}
-                    </span>
+              <>
+                <div className="panel__filtros">
+                  <label className="campo panel__filtros-buscar">
+                    <span className="campo__label">Buscar</span>
+                    <input
+                      type="search"
+                      value={busqueda}
+                      placeholder="Nombre, categoría, medidas…"
+                      onChange={(evento) => setBusqueda(evento.target.value)}
+                    />
+                  </label>
 
-                    <span className="producto-fila__datos">
-                      <p className="producto-fila__nombre">{producto.nombre}</p>
-                      <p className="producto-fila__meta">
-                        <span>{producto.categoria}</span>
-                        <span>·</span>
-                        <span>{formatoPrecio(producto.precio)}</span>
-                        <span>·</span>
-                        <span>
-                          {(producto.imagenes ?? []).length} foto
-                          {(producto.imagenes ?? []).length === 1 ? '' : 's'}
+                  <label className="campo">
+                    <span className="campo__label">Categoría</span>
+                    <select
+                      value={categoriaFiltro}
+                      onChange={(evento) => setFiltroCategoria(evento.target.value)}
+                    >
+                      <option value="Todos">Todas</option>
+                      {categorias
+                        .filter((categoria) => categoria !== 'Todos')
+                        .map((categoria) => (
+                          <option key={categoria} value={categoria}>
+                            {categoria}
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+
+                  <label className="campo">
+                    <span className="campo__label">Destacados</span>
+                    <select
+                      value={filtroDestacado}
+                      onChange={(evento) => setFiltroDestacado(evento.target.value)}
+                    >
+                      <option value="todos">Todos</option>
+                      <option value="destacados">Solo destacados</option>
+                      <option value="sin-destacar">Sin destacar</option>
+                    </select>
+                  </label>
+
+                  <p className="panel__filtros-contador">
+                    <span>
+                      {hayFiltros
+                        ? `Mostrando ${productosFiltrados.length} de ${productosCrudos.length}`
+                        : `${productosCrudos.length} productos`}
+                    </span>
+                    {hayFiltros && (
+                      <button
+                        type="button"
+                        className="boton-mini"
+                        onClick={limpiarFiltros}
+                      >
+                        Limpiar filtros
+                      </button>
+                    )}
+                  </p>
+                </div>
+
+                {productosFiltrados.length === 0 ? (
+                  <p className="campo__nota">
+                    Ningún producto coincide con la búsqueda o los filtros.{' '}
+                    <button
+                      type="button"
+                      className="boton-mini"
+                      onClick={limpiarFiltros}
+                    >
+                      Limpiar filtros
+                    </button>
+                  </p>
+                ) : (
+                  <ul className="lista-productos">
+                    {productosFiltrados.map((producto) => (
+                      <li className="producto-fila" key={producto.id}>
+                        <span className="producto-fila__foto">
+                          {producto.imagenes?.[0] ? (
+                            <img src={rutaPublica(producto.imagenes[0])} alt="" />
+                          ) : (
+                            <span aria-hidden="true">{producto.icono}</span>
+                          )}
                         </span>
-                        {producto.destacado && (
-                          <span className="etiqueta-destacado">Destacado</span>
-                        )}
-                      </p>
-                    </span>
 
-                    <span className="producto-fila__acciones">
-                      <button
-                        type="button"
-                        className="boton-mini"
-                        onClick={() => setEditor({ ...producto })}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="boton-mini"
-                        onClick={() => alternarDestacado(producto)}
-                      >
-                        {producto.destacado ? 'Quitar destacado' : 'Destacar'}
-                      </button>
-                      <button
-                        type="button"
-                        className="boton-mini"
-                        onClick={() => duplicarProducto(producto)}
-                      >
-                        Duplicar
-                      </button>
-                      <button
-                        type="button"
-                        className="boton-mini boton-mini--peligro"
-                        onClick={() => eliminarProducto(producto)}
-                      >
-                        Eliminar
-                      </button>
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                        <span className="producto-fila__datos">
+                          <p className="producto-fila__nombre">{producto.nombre}</p>
+                          <p className="producto-fila__meta">
+                            <span>{producto.categoria}</span>
+                            <span>·</span>
+                            <span>{formatoPrecio(producto.precio)}</span>
+                            <span>·</span>
+                            <span>
+                              {(producto.imagenes ?? []).length} foto
+                              {(producto.imagenes ?? []).length === 1 ? '' : 's'}
+                            </span>
+                            {producto.destacado && (
+                              <span className="etiqueta-destacado">Destacado</span>
+                            )}
+                          </p>
+                        </span>
+
+                        <span className="producto-fila__acciones">
+                          <button
+                            type="button"
+                            className="boton-mini"
+                            onClick={() => setEditor({ ...producto })}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            className="boton-mini"
+                            onClick={() => alternarDestacado(producto)}
+                          >
+                            {producto.destacado ? 'Quitar destacado' : 'Destacar'}
+                          </button>
+                          <button
+                            type="button"
+                            className="boton-mini"
+                            onClick={() => duplicarProducto(producto)}
+                          >
+                            Duplicar
+                          </button>
+                          <button
+                            type="button"
+                            className="boton-mini boton-mini--peligro"
+                            onClick={() => eliminarProducto(producto)}
+                          >
+                            Eliminar
+                          </button>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
             )}
           </div>
         )}

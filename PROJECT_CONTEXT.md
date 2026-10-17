@@ -199,6 +199,20 @@ prueba-carro/
 - **Lupa:** se probó y luego **se quitó** (commit `6f2101a`): había estado y handlers de puntero en `ProductoModal.jsx` que se eliminaron junto con su CSS (`.modal__lupa`). Si vuelve a pedirse, está documentada en el historial de git.
 - **Verificado:** `.modal__imagen` con `object-fit: cover`, `transitionProperty: transform`, sin nodos `.modal__lupa`, media queries `hover`/`pointer` activas y **0 errores de consola**.
 
+### Fase 12 — Filtros en el catálogo del panel
+- **Pedido:** en la administración poder **buscar**, **filtrar por categoría** y **filtrar por destacados**.
+- **Barra de filtros** (`AdminPanel.jsx` → `.panel__filtros`), visible solo si hay productos:
+  - **Buscar** (`input type="search"`): coincide contra nombre, categoría, medidas y descripción, sin distinguir mayúsculas.
+  - **Categoría** (select): usa las `categorias` que ya expone el store, siempre arrancando en "Todas".
+  - **Destacados** (select): `Todos` / `Solo destacados` / `Sin destacar`.
+  - **Contador** (`Mostrando X de Y`) + botón **Limpiar filtros**, que también aparece en el mensaje de "sin resultados".
+- **Sin `useMemo`:** la lista es chica, se filtra en cada render con la función `coincide()` (evita avisos de dependencias del linter).
+- **Bordes de casos:**
+  - Si la categoría elegida desaparece (se borró su último producto), el filtro se comporta como "Todas".
+  - Si se guarda un producto que **no pasa los filtros activos**, estos se limpian solos y el aviso lo indica (`Se limpiaron los filtros para mostrarlo.`), para que no parezca que el guardado falló.
+- **CSS:** `Admin.css` con `.panel__filtros`, `.panel__filtros-buscar`, `.panel__filtros-contador` y un `@media (max-width: 640px)` que apila los controles. Se agregó `input[type='search']` a los selectores de `.campo input`.
+- **Verificado:** búsqueda (2/12 con "agenda"), categoría + destacados combinados (2/12 y ambos con la etiqueta), resultado vacío con botón de limpiar, limpiar vuelve a 12, guardado con filtro activo que limpia los filtros, borrado de prueba y **0 errores de consola**.
+
 ---
 
 ## 6. Decisiones técnicas importantes
