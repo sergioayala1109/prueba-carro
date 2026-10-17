@@ -1,11 +1,12 @@
 import { negocio } from '../data/negocio';
+import { rutaPublica } from '../utils/urls';
 
 const collage = [
   { src: '/productos/01-agenda-personalizada.jpg', alt: 'Agenda personalizada' },
   { src: '/productos/09-invitaciones-boda.jpg', alt: 'Invitaciones de boda' },
   { src: '/productos/04-cake-topper.jpg', alt: 'Cake topper personalizado' },
   { src: '/productos/05-devocional-femenino.jpg', alt: 'Devocional personalizado' },
-];
+].map((foto) => ({ ...foto, src: rutaPublica(foto.src) }));
 
 export default function Hero() {
   const { direccion } = negocio;
