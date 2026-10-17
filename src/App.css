@@ -1141,11 +1141,11 @@ img {
 .modal__principal img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .modal__imagen {
-  object-fit: contain;
+  object-fit: cover;
 }
 
 .modal__lupa {
