@@ -1,0 +1,291 @@
+// Catálogo de productos.
+// "imagenes": la primera es la portada; las demás forman la galería de la ficha.
+// "icono": respaldo (emoji) si una imagen no carga.
+// Reemplaza las fotos por las de tus productos reales cuando las tengas.
+export const categorias = [
+  'Todos',
+  'Papelería',
+  'Impresión',
+  'Repostería',
+  'Devocionales',
+];
+
+export const productos = [
+  {
+    id: 1,
+    nombre: 'Agenda personalizada A5',
+    categoria: 'Papelería',
+    precio: 12990,
+    precioAntes: 15990,
+    descripcion:
+      'Agenda de tapa dura con tu nombre y diseño a elección. Interior de 200 hojas, separadores y una hoja de datos para que la armes como más te guste.',
+    medidas: 'A5 · 14,8 × 21 cm',
+    detalles: [
+      '200 hojas bond de 90 g',
+      'Encuadernación artesanal',
+      'Separadores de tela',
+      'Portada laminada mate',
+    ],
+    imagenes: [
+      '/productos/01-agenda-personalizada.jpg',
+      '/productos/01-agenda-personalizada-2.jpg',
+      '/productos/01-agenda-personalizada-3.jpg',
+      '/productos/01-agenda-personalizada-4.jpg',
+    ],
+    icono: '📔',
+    destacado: true,
+  },
+  {
+    id: 2,
+    nombre: 'Planner semanal imantado',
+    categoria: 'Papelería',
+    precio: 8990,
+    descripcion:
+      'Planificador semanal para la nevera: escribe, borra y vuelve a planificar. Incluye marcador con borrador y diseño a tu gusto.',
+    medidas: 'A4 · 21 × 29,7 cm',
+    detalles: [
+      'Hoja imantada reutilizable',
+      'Marcador con borrador',
+      'Diseño semanal',
+      'Colores a elección',
+    ],
+    imagenes: [
+      '/productos/02-planner-semanal.jpg',
+      '/productos/02-planner-semanal-2.jpg',
+      '/productos/02-planner-semanal-3.jpg',
+      '/productos/02-planner-semanal-4.jpg',
+    ],
+    icono: '🗓️',
+    destacado: true,
+  },
+  {
+    id: 3,
+    nombre: 'Tarjetas de presentación (100 pz)',
+    categoria: 'Impresión',
+    precio: 14990,
+    descripcion:
+      '100 tarjetas con tu diseño, impresas a color en papel mate de alto gramaje. Ideales para tu emprendimiento o profesión.',
+    medidas: '9 × 5 cm',
+    detalles: [
+      'Papel mate de 300 g',
+      'Impresión a color',
+      'Corte recto o redondeado',
+      'Diseño personalizado',
+    ],
+    imagenes: [
+      '/productos/03-tarjetas-presentacion.jpg',
+      '/productos/03-tarjetas-presentacion-2.jpg',
+      '/productos/03-tarjetas-presentacion-3.jpg',
+      '/productos/03-tarjetas-presentacion-4.jpg',
+    ],
+    icono: '💳',
+    destacado: false,
+  },
+  {
+    id: 4,
+    nombre: 'Cake topper personalizado',
+    categoria: 'Repostería',
+    precio: 7500,
+    descripcion:
+      'Topper para pastel con el nombre, edad o frase que quieras. Perfecto para cumpleaños, baby showers y aniversarios.',
+    medidas: 'Alto aprox. 15 cm',
+    detalles: [
+      'Acrílico o cartón rígido',
+      'Nombre o frase a gusto',
+      'Paleta de color a elección',
+      'Vara de sujeción incluida',
+    ],
+    imagenes: [
+      '/productos/04-cake-topper.jpg',
+      '/productos/04-cake-topper-2.jpg',
+      '/productos/04-cake-topper-3.jpg',
+      '/productos/04-cake-topper-4.jpg',
+    ],
+    icono: '🎂',
+    destacado: true,
+  },
+  {
+    id: 5,
+    nombre: 'Devocional femenino',
+    categoria: 'Devocionales',
+    precio: 11990,
+    descripcion:
+      'Devocional de 31 días con lecturas, espacios para escribir y una dedicatoria personalizada. Un regalo con significado.',
+    medidas: 'A5 · 14,8 × 21 cm',
+    detalles: [
+      '31 lecturas',
+      'Hojas punteadas para escribir',
+      'Dedicatoria personalizada',
+      'Portada dura',
+    ],
+    imagenes: [
+      '/productos/05-devocional-femenino.jpg',
+      '/productos/05-devocional-femenino-2.jpg',
+      '/productos/05-devocional-femenino-3.jpg',
+      '/productos/05-devocional-femenino-4.jpg',
+    ],
+    icono: '📖',
+    destacado: true,
+  },
+  {
+    id: 6,
+    nombre: 'Devocional infantil',
+    categoria: 'Devocionales',
+    precio: 8990,
+    descripcion:
+      'Devocional ilustrado para niños, con actividades y portada con su nombre. Pensado para compartir en familia.',
+    medidas: 'A5 · 14,8 × 21 cm',
+    detalles: [
+      'Ilustrado a color',
+      'Actividades y stickers',
+      'Nombre en la portada',
+      '20 lecturas cortas',
+    ],
+    imagenes: [
+      '/productos/06-devocional-infantil.jpg',
+      '/productos/06-devocional-infantil-2.jpg',
+      '/productos/06-devocional-infantil-3.jpg',
+      '/productos/06-devocional-infantil-4.jpg',
+    ],
+    icono: '🧒',
+    destacado: false,
+  },
+  {
+    id: 7,
+    nombre: 'Cuaderno punteado para bullet journal',
+    categoria: 'Papelería',
+    precio: 7990,
+    descripcion:
+      'Cuaderno de hojas punteadas de 120 g, ideal para bullet journal, bocetos y lettering. Con elástico y bolsillo interior.',
+    medidas: 'A5 · 14,8 × 21 cm',
+    detalles: [
+      'Hojas punteadas de 120 g',
+      'Elástico y bolsillo interior',
+      'Separador de cinta',
+      'Tapa dura',
+    ],
+    imagenes: [
+      '/productos/07-cuaderno-punteado.jpg',
+      '/productos/07-cuaderno-punteado-2.jpg',
+      '/productos/07-cuaderno-punteado-3.jpg',
+      '/productos/07-cuaderno-punteado-4.jpg',
+    ],
+    icono: '📓',
+    destacado: false,
+  },
+  {
+    id: 8,
+    nombre: 'Set de stickers personalizados',
+    categoria: 'Impresión',
+    precio: 4990,
+    descripcion:
+      'Una hoja con tus stickers favoritos: iniciales, logo o frases. Troquelados listos para usar en tus cuadernos y empaques.',
+    medidas: 'Hoja A5 · 14,8 × 21 cm',
+    detalles: [
+      'Vinilo resistente al agua',
+      'Troquelado individual',
+      'Tus iniciales o logo',
+      'Acabado mate o brillante',
+    ],
+    imagenes: [
+      '/productos/08-stickers.jpg',
+      '/productos/08-stickers-2.jpg',
+      '/productos/08-stickers-3.jpg',
+      '/productos/08-stickers-4.jpg',
+    ],
+    icono: '✨',
+    destacado: false,
+  },
+  {
+    id: 9,
+    nombre: 'Invitaciones de boda (50 pz)',
+    categoria: 'Impresión',
+    precio: 39990,
+    descripcion:
+      '50 invitaciones con sobre y detalles en papel de algodón. Diseño exclusivo para tu gran día.',
+    medidas: '13 × 18 cm',
+    detalles: [
+      'Papel de algodón de 250 g',
+      'Sobre incluido',
+      'Detalles en dorado o plateado',
+      'Diseño exclusivo',
+    ],
+    imagenes: [
+      '/productos/09-invitaciones-boda.jpg',
+      '/productos/09-invitaciones-boda-2.jpg',
+      '/productos/09-invitaciones-boda-3.jpg',
+      '/productos/09-invitaciones-boda-4.jpg',
+    ],
+    icono: '💌',
+    destacado: false,
+  },
+  {
+    id: 10,
+    nombre: 'Etiquetas para regalo (20 pz)',
+    categoria: 'Impresión',
+    precio: 3990,
+    descripcion:
+      '20 etiquetas troqueladas en cartulina kraft con hilo de yute. El toque final para tus regalos y empaques.',
+    medidas: '5 × 9 cm',
+    detalles: [
+      'Cartulina kraft',
+      'Hilo de yute',
+      '20 piezas',
+      'Frase personalizada',
+    ],
+    imagenes: [
+      '/productos/10-etiquetas-regalo.jpg',
+      '/productos/10-etiquetas-regalo-2.jpg',
+      '/productos/10-etiquetas-regalo-3.jpg',
+      '/productos/10-etiquetas-regalo-4.jpg',
+    ],
+    icono: '🏷️',
+    destacado: false,
+  },
+  {
+    id: 11,
+    nombre: 'Portavasos personalizados',
+    categoria: 'Repostería',
+    precio: 6990,
+    descripcion:
+      'Set de 4 portavasos con acrílico grabado y la frase que elijas. Cuida tus muebles con estilo.',
+    medidas: '10 × 10 cm',
+    detalles: [
+      'Set de 4 piezas',
+      'Acrílico grabado',
+      'Base antideslizante',
+      'Frase a elección',
+    ],
+    imagenes: [
+      '/productos/11-portavasos.jpg',
+      '/productos/11-portavasos-2.jpg',
+      '/productos/11-portavasos-3.jpg',
+      '/productos/11-portavasos-4.jpg',
+    ],
+    icono: '🥤',
+    destacado: false,
+  },
+  {
+    id: 12,
+    nombre: 'Agenda de oraciones',
+    categoria: 'Devocionales',
+    precio: 10990,
+    descripcion:
+      'Registro de peticiones y gratitud con portada personalizada. Un espacio para escribir y volver a leer tus respuestas.',
+    medidas: 'A5 · 14,8 × 21 cm',
+    detalles: [
+      'Registro de peticiones',
+      'Sección de gratitud',
+      'Portada personalizada',
+      'Hojas de 100 g',
+    ],
+    imagenes: [
+      '/productos/12-agenda-oraciones.jpg',
+      '/productos/12-agenda-oraciones-2.jpg',
+      '/productos/12-agenda-oraciones-3.jpg',
+      '/productos/12-agenda-oraciones-4.jpg',
+    ],
+    icono: '🙏',
+    destacado: false,
+  },
+];
