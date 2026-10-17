@@ -3,6 +3,11 @@ import { formatoPrecio } from '../data/negocio';
 import { useDatos } from '../store/datos';
 import { enlaceWhatsApp } from '../utils/whatsapp';
 
+// Lupa: cuánto aumenta y el rango de tamaño (px) del círculo que sigue al puntero.
+const AUMENTO = 2.4;
+const LUPA_MIN = 118;
+const LUPA_MAX = 190;
+
 export default function ProductoModal({ producto, onCerrar }) {
   const { negocio } = useDatos();
   const [imagenes, setImagenes] = useState(producto.imagenes ?? []);
@@ -11,6 +16,46 @@ export default function ProductoModal({ producto, onCerrar }) {
 
   const total = imagenes.length;
   const detalles = producto.detalles ?? [];
+
+  // --- Lupa ---------------------------------------------------------------
+  // El círculo muestra la misma foto ampliada, centrada en el punto que se
+  // está mirando. Se mide la caja en cada movimiento (es barato) para que el
+  // aumento quede siempre alineado, incluso si la ventana cambia de tamaño.
+  const principalRef = useRef(null);
+  const [lupa, setLupa] = useState(null);
+
+  const moverLupa = (evento) => {
+    const nodo = principalRef.current;
+    if (!nodo || total === 0) return;
+
+    const caja = nodo.getBoundingClientRect();
+    const tamano = Math.round(
+      Math.min(LUPA_MAX, Math.max(LUPA_MIN, Math.min(caja.width, caja.height) * 0.45)),
+    );
+    const mitad = tamano / 2;
+    const limitar = (valor, maximo) =>
+      Math.min(Math.max(valor, mitad), Math.max(mitad, maximo - mitad));
+
+    setLupa({
+      x: limitar(evento.clientX - caja.left, caja.width),
+      y: limitar(evento.clientY - caja.top, caja.height),
+      ancho: caja.width,
+      alto: caja.height,
+      tamano,
+    });
+  };
+
+  // Con mouse: la lupa sigue el cursor. Con el dedo: aparece al tocar y
+  // arrastrar, y se quita al soltar.
+  const entrarLupa = (evento) => {
+    if (evento.pointerType === 'mouse') moverLupa(evento);
+  };
+  const salirLupa = (evento) => {
+    if (evento.pointerType === 'mouse') setLupa(null);
+  };
+  const soltarLupa = (evento) => {
+    if (evento.pointerType !== 'mouse') setLupa(null);
+  };
 
   const mover = useCallback(
     (paso) => {
@@ -79,12 +124,23 @@ export default function ProductoModal({ producto, onCerrar }) {
         </button>
 
         <div className="modal__galeria">
-          <div className="modal__principal">
+          <div
+            className="modal__principal"
+            ref={principalRef}
+            onPointerEnter={entrarLupa}
+            onPointerMove={moverLupa}
+            onPointerLeave={salirLupa}
+            onPointerUp={soltarLupa}
+            onPointerDown={soltarLupa}
+            onPointerCancel={salirLupa}
+            style={{ cursor: total > 0 ? 'zoom-in' : 'default' }}
+          >
             {total > 0 ? (
               <img
                 src={imagenes[actual]}
                 alt={`${producto.nombre} — imagen ${actual + 1}`}
                 onError={() => quitarImagen(imagenes[actual])}
+                className="modal__imagen"
               />
             ) : (
               <span className="modal__sinimagen" role="img" aria-label={producto.nombre}>
@@ -114,6 +170,27 @@ export default function ProductoModal({ producto, onCerrar }) {
                   {actual + 1} / {total}
                 </span>
               </>
+            )}
+
+            {total > 0 && lupa && (
+              <div
+                className="modal__lupa"
+                style={{
+                  left: lupa.x - lupa.tamano / 2,
+                  top: lupa.y - lupa.tamano / 2,
+                  width: lupa.tamano,
+                  height: lupa.tamano,
+                }}
+              >
+                <div
+                  className="modal__lupa-interior"
+                  style={{
+                    backgroundImage: `url("${imagenes[actual]}")`,
+                    backgroundSize: `${lupa.ancho * AUMENTO}px ${lupa.alto * AUMENTO}px`,
+                    backgroundPosition: `${-lupa.x * (AUMENTO - 1)}px ${-lupa.y * (AUMENTO - 1)}px`,
+                  }}
+                />
+              </div>
             )}
           </div>
 

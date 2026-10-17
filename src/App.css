@@ -1144,6 +1144,28 @@ img {
   object-fit: contain;
 }
 
+.modal__imagen {
+  object-fit: contain;
+}
+
+.modal__lupa {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  box-shadow: 0 18px 40px -18px rgba(88, 24, 104, 0.8),
+    inset 0 0 0 1px rgba(88, 24, 104, 0.15);
+  overflow: hidden;
+  background: #ffffff;
+  transition: opacity 0.12s ease;
+}
+
+.modal__lupa-interior {
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+}
+
 .modal__sinimagen {
   display: grid;
   place-items: center;
