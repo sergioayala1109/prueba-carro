@@ -18,6 +18,10 @@ const PRODUCTO_VACIO = {
   destacado: false,
 };
 
+// Cuántos productos por página en la lista de administración.
+const POR_PAGINA_PREDETERMINADO = 10;
+const OPCIONES_POR_PAGINA = [10, 20, 50];
+
 export default function AdminPanel() {
   const { usuario, salir } = useAuth();
   const {
@@ -42,6 +46,10 @@ export default function AdminPanel() {
   const [busqueda, setBusqueda] = useState('');
   const [filtroCategoria, setFiltroCategoria] = useState('Todos');
   const [filtroDestacado, setFiltroDestacado] = useState('todos');
+
+  // --- Paginación (10 por defecto) ---
+  const [porPagina, setPorPagina] = useState(POR_PAGINA_PREDETERMINADO);
+  const [pagina, setPagina] = useState(1);
 
   // Si la categoría elegida ya no existe (ej. se borró el último producto),
   // el filtro se comporta como "Todas".
@@ -75,7 +83,38 @@ export default function AdminPanel() {
     setBusqueda('');
     setFiltroCategoria('Todos');
     setFiltroDestacado('todos');
+    setPagina(1);
   };
+
+  // --- Paginación (independiente de los filtros) ---
+  const totalPaginas = Math.max(1, Math.ceil(productosFiltrados.length / porPagina));
+  // Se recorta aquí mismo y no con un setState: si se borran filas o cambian
+  // los filtros, la página pedida puede dejar de existir.
+  const paginaActual = Math.min(Math.max(pagina, 1), totalPaginas);
+  const desde = (paginaActual - 1) * porPagina;
+  const productosPagina = productosFiltrados.slice(desde, desde + porPagina);
+
+  // Dónde queda un producto recién creado o duplicado (siempre al final).
+  const paginaFinalDe = (totalElementos) =>
+    Math.max(1, Math.ceil(totalElementos / porPagina));
+
+  // Números a mostrar: todas si son pocas páginas, si no el primero, el
+  // último y las vecinas de la actual, con "…" en los saltos.
+  const botonesPagina = (() => {
+    const vecinas = [paginaActual - 1, paginaActual, paginaActual + 1].filter(
+      (n) => n > 1 && n < totalPaginas,
+    );
+    const marcas = [...new Set([1, ...vecinas, totalPaginas])].sort(
+      (a, b) => a - b,
+    );
+    if (totalPaginas <= 7) return marcas;
+    const salida = [];
+    marcas.forEach((n, indice) => {
+      if (indice > 0 && n - marcas[indice - 1] > 1) salida.push('…');
+      salida.push(n);
+    });
+    return salida;
+  })();
 
   const guardarProducto = (producto) => {
     const existe = productosCrudos.some((p) => p.id === producto.id);
@@ -90,6 +129,14 @@ export default function AdminPanel() {
       // que no parezca que el cambio no se guardó.
       const oculto = hayFiltros && !coincide(producto);
       if (oculto) limpiarFiltros();
+      // Un producto nuevo se agrega al final del catálogo: si hay varias
+      // páginas, saltamos a la última para que se vea recién guardado.
+      if (!existe) {
+        const totalFinal = oculto
+          ? siguientes.length
+          : productosFiltrados.length + (coincide(producto) ? 1 : 0);
+        setPagina(paginaFinalDe(totalFinal));
+      }
       setAviso({
         tipo: 'ok',
         texto: `Producto "${producto.nombre}" guardado.${oculto ? ' Se limpiaron los filtros para mostrarlo.' : ''}`,
@@ -107,11 +154,15 @@ export default function AdminPanel() {
       destacado: false,
     };
     const resultado = guardarProductos([...productosCrudos, copia]);
-    setAviso(
-      resultado.ok
-        ? { tipo: 'ok', texto: `Se duplicó "${producto.nombre}".` }
-        : { tipo: 'error', texto: resultado.error },
-    );
+    if (resultado.ok) {
+      // La copia queda al final: mostramos la última página.
+      const totalFinal =
+        coincide(copia) ? productosFiltrados.length + 1 : productosFiltrados.length;
+      setPagina(paginaFinalDe(totalFinal));
+      setAviso({ tipo: 'ok', texto: `Se duplicó "${producto.nombre}".` });
+    } else {
+      setAviso({ tipo: 'error', texto: resultado.error });
+    }
   };
 
   const eliminarProducto = (producto) => {
@@ -260,7 +311,10 @@ export default function AdminPanel() {
                       type="search"
                       value={busqueda}
                       placeholder="Nombre, categoría, medidas…"
-                      onChange={(evento) => setBusqueda(evento.target.value)}
+                      onChange={(evento) => {
+                        setBusqueda(evento.target.value);
+                        setPagina(1);
+                      }}
                     />
                   </label>
 
@@ -268,7 +322,10 @@ export default function AdminPanel() {
                     <span className="campo__label">Categoría</span>
                     <select
                       value={categoriaFiltro}
-                      onChange={(evento) => setFiltroCategoria(evento.target.value)}
+                      onChange={(evento) => {
+                        setFiltroCategoria(evento.target.value);
+                        setPagina(1);
+                      }}
                     >
                       <option value="Todos">Todas</option>
                       {categorias
@@ -285,7 +342,10 @@ export default function AdminPanel() {
                     <span className="campo__label">Destacados</span>
                     <select
                       value={filtroDestacado}
-                      onChange={(evento) => setFiltroDestacado(evento.target.value)}
+                      onChange={(evento) => {
+                        setFiltroDestacado(evento.target.value);
+                        setPagina(1);
+                      }}
                     >
                       <option value="todos">Todos</option>
                       <option value="destacados">Solo destacados</option>
@@ -324,7 +384,7 @@ export default function AdminPanel() {
                   </p>
                 ) : (
                   <ul className="lista-productos">
-                    {productosFiltrados.map((producto) => (
+                    {productosPagina.map((producto) => (
                       <li className="producto-fila" key={producto.id}>
                         <span className="producto-fila__foto">
                           {producto.imagenes?.[0] ? (
@@ -384,6 +444,85 @@ export default function AdminPanel() {
                       </li>
                     ))}
                   </ul>
+                )}
+
+                {productosFiltrados.length > 0 && (
+                  <nav className="panel__paginacion" aria-label="Paginación del catálogo">
+                    {totalPaginas > 1 && (
+                      <>
+                      <button
+                        type="button"
+                        className="boton-mini"
+                        disabled={paginaActual === 1}
+                        onClick={() => setPagina(paginaActual - 1)}
+                      >
+                        ← Anterior
+                      </button>
+
+                      <ul className="panel__paginacion__numeros">
+                        {botonesPagina.map((numero, indice) =>
+                          numero === '…' ? (
+                            <li
+                              key={`hueco-${indice}`}
+                              className="panel__paginacion__hueco"
+                              aria-hidden="true"
+                            >
+                              …
+                            </li>
+                          ) : (
+                            <li key={numero}>
+                              <button
+                                type="button"
+                                className={
+                                  numero === paginaActual
+                                    ? 'boton-mini boton-mini--activo'
+                                    : 'boton-mini'
+                                }
+                                aria-current={
+                                  numero === paginaActual ? 'page' : undefined
+                                }
+                                onClick={() => setPagina(numero)}
+                              >
+                                {numero}
+                              </button>
+                            </li>
+                          ),
+                        )}
+                      </ul>
+
+                      <button
+                        type="button"
+                        className="boton-mini"
+                        disabled={paginaActual === totalPaginas}
+                        onClick={() => setPagina(paginaActual + 1)}
+                      >
+                        Siguiente →
+                      </button>
+                      </>
+                    )}
+
+                    <span className="panel__paginacion__rango">
+                      {desde + 1}–{desde + productosPagina.length} de{' '}
+                      {productosFiltrados.length}
+                    </span>
+
+                    <label className="panel__paginacion__por">
+                      <span>Por página</span>
+                      <select
+                        value={porPagina}
+                        onChange={(evento) => {
+                          setPorPagina(Number(evento.target.value));
+                          setPagina(1);
+                        }}
+                      >
+                        {OPCIONES_POR_PAGINA.map((n) => (
+                          <option key={n} value={n}>
+                            {n}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </nav>
                 )}
               </>
             )}

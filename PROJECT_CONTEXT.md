@@ -123,7 +123,7 @@ prueba-carro/
         └── admin/
             ├── Admin.jsx          # muestra el acceso o el panel según la sesión
             ├── AdminLogin.jsx     # pantalla de acceso (demo)
-            ├── AdminPanel.jsx     # pestañas, lista de productos y acciones
+            ├── AdminPanel.jsx     # pestañas, catálogo (filtros, paginación, acciones)
             ├── EditorProducto.jsx # formulario de un producto (con gestión de fotos)
             ├── FormNegocio.jsx    # datos del negocio + textos del Hero/Nosotros
             └── Admin.css          # estilos del panel
@@ -212,6 +212,16 @@ prueba-carro/
   - Si se guarda un producto que **no pasa los filtros activos**, estos se limpian solos y el aviso lo indica (`Se limpiaron los filtros para mostrarlo.`), para que no parezca que el guardado falló.
 - **CSS:** `Admin.css` con `.panel__filtros`, `.panel__filtros-buscar`, `.panel__filtros-contador` y un `@media (max-width: 640px)` que apila los controles. Se agregó `input[type='search']` a los selectores de `.campo input`.
 - **Verificado:** búsqueda (2/12 con "agenda"), categoría + destacados combinados (2/12 y ambos con la etiqueta), resultado vacío con botón de limpiar, limpiar vuelve a 12, guardado con filtro activo que limpia los filtros, borrado de prueba y **0 errores de consola**.
+
+### Fase 13 — Paginación del catálogo en el panel
+- **Pedido:** paginar la lista de productos del panel, **máximo 10 registros por defecto**.
+- **Estado nuevo:** `porPagina` (predefinido 10, con selector 10/20/50) y `pagina`; `POR_PAGINA_PREDETERMINADO` y `OPCIONES_POR_PAGINA` viven fuera del componente.
+- **Derivación sin `useEffect`:** `totalPaginas`, `paginaActual = Math.min(Math.max(pagina, 1), totalPaginas)` y `productosPagina` (el `slice` que se mapea en el `<ul>`). El recorte en el render evita forzar `setState` cuando se borran filas o cambian los filtros (páginas que dejan de existir).
+- **Reinicios:** cambiar búsqueda/categoría/destacados o pulsar *Limpiar filtros* vuelve a la página 1; cambiar *Por página* también.
+- **Botones de página:** si hay 7 páginas o menos se muestran todas; si no, la primera, la última y las vecinas de la actual, con `…` en los saltos. La página activa usa `boton-mini--activo` + `aria-current="page"`.
+- **Barra `.panel__paginacion`:** *← Anterior*, números, *Siguiente →*, rango (`11–13 de 13`) y el selector *Por página*. Los botones de página se ocultan si todo cabe en una pantalla, pero **el rango y el selector se quedan visibles** (si no, elegir 20/50 en un catálogo chico esconde la barra y no se puede volver a 10).
+- **Creados y duplicados:** un producto nuevo o una copia siempre queda al final del listado, así que se salta a la última página (`paginaFinalDe`) para que se vea recién guardado; si el guardado limpió los filtros, la página se calcula con la lista ya filtrada de nuevo.
+- **Verificado:** 12 productos → 2 páginas (`1–10 de 12`, *Anterior* deshabilitado), página 2 con 2 filas y *Siguiente* deshabilitado, filtro a 2 resultados recorta la página pedida a la 1, 20 por página muestra los 12 sin navegación, creación salta a la última página (3 filas, `11–13 de 13`), duplicado igual (4 filas), borrado recorta bien, limpiar vuelve a `1–10 de 12` y **0 errores de consola**.
 
 ---
 
