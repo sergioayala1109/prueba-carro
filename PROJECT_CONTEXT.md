@@ -11,7 +11,8 @@
 **Marca:** **Monsant · Estudio Creativo**
 **Tipo:** Vitrina / catálogo web (sitio de una sola página) para un emprendimiento de papelería y regalos personalizados.
 **Ubicación del negocio:** Cruz 395, Constitución, Maule, Chile.
-**Estado general:** ✅ Funcional y navegable. Compila (`npm run build`) y corre en desarrollo sin errores de consola. Falta pulido de contenidos, licencias de imágenes y despliegue.
+**Estado general:** ✅ Funcional y navegable, versionado en GitHub. Compila (`npm run build`) y corre en desarrollo sin errores de consola. Falta pulido de contenidos y despliegue.
+**Repositorio:** https://github.com/sergioayala1109/prueba-carro (público, rama `main`)
 
 ### Qué es
 Una landing page de una sola página con estética rosa/lila/ciruela que muestra 12 productos personalizados, permite ver el detalle de cada uno en un modal con galería, y canaliza la conversión hacia **WhatsApp**. Incluye carrusel de destacados, banda de beneficios, catálogo filtrable, sección "nosotros" y footer con la misión.
@@ -184,34 +185,32 @@ prueba-carro/
 
 ## 8. Pendientes para mañana (priorizados)
 
+> 📌 **Imágenes:** por decisión del cliente (17/10/2026) se **mantienen las 48 imágenes actuales** (Pinterest) **sin cambios**. No está pendiente reemplazarlas ni ajustarlas.
+
 ### Prioridad alta
-1. **Reemplazar las imágenes de Pinterest por fotos propias o con licencia comercial.**
-   Las actuales son de terceros, sin licencia libre verificada: sirven para la demo, pero **no** para publicar. Alternativas: fotos propias, Unsplash, Pexels, Pixabay.
-2. **Revisar que cada imagen calce con su producto.** No se pudo verificar visualmente el contenido; hay que revisar las 12 categorías y pedir cambios de las que no cuadren.
-3. **Confirmar los datos reales del negocio:** nombre de marca ("Monsant"), correo, teléfono, horario, redes y dirección.
-4. **Revisar las métricas inventadas de la sección "Nosotros"** (`+2,500 pedidos`, `4.9★`, `3-5 días`): son de ejemplo y hay que validarlas o quitarlas.
+1. **Confirmar los datos reales del negocio:** nombre de marca ("Monsant"), correo, teléfono, horario, redes y dirección.
+2. **Revisar las métricas de la sección "Nosotros"** (`+2,500 pedidos`, `4.9★`, `3-5 días`): son de ejemplo y hay que validarlas o quitarlas.
 
 ### Prioridad media
-5. **Inicializar un repositorio Git propio** dentro de la carpeta del proyecto (ver Advertencias).
-6. **Optimizar imágenes:** hoy pesan ~6 MB en total. Convertir a **WebP**, comprimir y añadir `loading="lazy"` a las imágenes fuera de pantalla.
-7. **Revisar la navegación y el layout en móvil** (el menú `.nav` se oculta bajo 900 px; revisar si hace falta un menú hamburguesa).
-8. **Revisar el ancla `#tienda`**: hoy el nav "Contacto" del header baja al footer. Confirmar que sea la experiencia deseada.
-9. **Decidir el tilde verde** del modal (unificar paleta).
+3. **Optimizar el peso de las imágenes** (solo rendimiento, sin cambiar el contenido visible): hoy pesan ~6 MB en total. Comprimir, evaluar WebP y añadir `loading="lazy"` a las imágenes fuera de pantalla.
+4. **Revisar la navegación y el layout en móvil** (el menú `.nav` se oculta bajo 900 px; revisar si hace falta un menú hamburguesa).
+5. **Revisar el ancla `#tienda`**: hoy el nav "Contacto" del header baja al footer. Confirmar que sea la experiencia deseada.
+6. **Decidir el tilde verde** del modal (unificar paleta).
 
 ### Prioridad baja
-10. **SEO / metadatos:** Open Graph (imagen para compartir en redes), favicon propio de la marca, `sitemap.xml`, datos estructurados.
-11. **Limpieza de residuos de plantilla:** `src/assets/hero.png`, `src/assets/react.svg`, `src/assets/vite.svg`, `public/icons.svg` y el `README.md` genérico.
-12. **Despliegue:** el `build` ya funciona; falta elegir hosting (Netlify, Vercel, etc.), dominio y probar la versión de producción.
-13. **Pulido de accesibilidad y contraste** (foco visible, textos alternativos más descriptivos).
+7. **SEO / metadatos:** Open Graph (imagen para compartir en redes), favicon propio de la marca, `sitemap.xml`, datos estructurados.
+8. **Limpieza de residuos de plantilla:** `src/assets/hero.png`, `src/assets/react.svg`, `src/assets/vite.svg`, `public/icons.svg` y el `README.md` genérico.
+9. **Despliegue web:** el `build` ya funciona y el código está en GitHub; falta publicar (GitHub Pages, Netlify, Vercel), elegir dominio y probar la versión de producción.
+10. **Pulido de accesibilidad y contraste** (foco visible, textos alternativos más descriptivos).
 
 ---
 
 ## 9. Advertencias y riesgos
 
-- ⚠️ **Licencias de imágenes (riesgo principal).** Las 48 fotos provienen de Pinterest y son obras de terceros sin licencia comercial verificada. **No publicar la tienda con estas imágenes.** Ver `CREDITOS.md`.
-- ⚠️ **Este proyecto NO tiene su propio repositorio Git.** La carpeta está dentro de un repositorio Git mayor en `/Users/sergioayala/Documents` (rama `main`) que **contiene archivos personales**. Evitar hacer `git add .` desde ahí. Lo recomendable es crear un repo propio dentro de `prueba-carro/`.
+- ⚠️ **Licencias de imágenes (riesgo asumido).** Las 48 fotos provienen de Pinterest y son obras de terceros sin licencia comercial verificada. **Decisión del cliente (17/10/2026): mantener las imágenes actuales sin cambios.** El aviso queda registrado en `CREDITOS.md`. Nota: el repositorio es **público**, así que las imágenes son visibles para cualquiera.
 - ⚠️ **Datos y métricas sin verificar.** El nombre de marca, el correo, las redes y las cifras de "Nosotros" son de ejemplo/OCR.
-- ⚠️ **`node_modules/` y `dist/`** existen localmente; si se crea un repo propio, añadir un `.gitignore` que los excluya.
+- ℹ️ **El proyecto ya tiene su propio repositorio Git** (`prueba-carro/.git`), independiente del repo mayor de `/Users/sergioayala/Documents` (que contiene archivos personales). Evitar hacer `git add` desde `Documents`.
+- ℹ️ **`node_modules/` y `dist/`** quedan excluidos por `.gitignore`: no se suben al repositorio.
 
 ---
 
@@ -219,8 +218,8 @@ prueba-carro/
 
 - **Fecha de esta actualización:** 17 de octubre de 2026.
 - **Servidor de desarrollo:** `http://localhost:5173/` (Vite 6.4.4).
-- **`dist/`** ya generado por un `npm run build` exitoso.
-- **No hay git en el proyecto** (ver Advertencias).
+- **Repositorio Git:** propio, dentro de la carpeta del proyecto. Remoto `git@github.com:sergioayala1109/prueba-carro.git`, rama `main` (público).
+- **`dist/`** ya generado por un `npm run build` exitoso (no se versiona).
 - El asistente **no puede ver imágenes**: para analizar capturas se usa OCR + extracción de paleta con Swift (`analyze.swift`), y las capturas se muestran al usuario en el panel de revisión.
 - Las capturas de pantalla en macOS pueden tener caracteres invisibles (U+202F) en el nombre; referenciarlas con `find`/globs.
 
