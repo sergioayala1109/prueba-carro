@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { avisoError, avisoExito } from '../../utils/alertas';
 
 // Convierte un teléfono escrito por una persona en el formato que usan los
 // enlaces: "+56 9 8453 6000" -> "+56984536000".
@@ -44,7 +45,6 @@ function ListaSimple({ titulo, nota, items, onCambiar, onAgregar, onQuitar, vaci
 
 export default function FormNegocio({ negocio, textos, onGuardar }) {
   const [borrador, setBorrador] = useState(() => JSON.parse(JSON.stringify({ negocio, textos })));
-  const [aviso, setAviso] = useState(null);
 
   const negocioActual = borrador.negocio;
   const textosActual = borrador.textos;
@@ -254,26 +254,15 @@ export default function FormNegocio({ negocio, textos, onGuardar }) {
   const enviar = (evento) => {
     evento.preventDefault();
     const resultado = onGuardar(borrador.negocio, borrador.textos);
-    setAviso(
-      resultado?.ok
-        ? { tipo: 'ok', texto: 'Datos guardados en este navegador.' }
-        : { tipo: 'error', texto: resultado?.error ?? 'No se pudieron guardar.' },
-    );
+    if (resultado?.ok) {
+      avisoExito('Datos guardados en este navegador.');
+    } else {
+      avisoError(resultado?.error ?? 'No se pudieron guardar.', 'No se pudo guardar');
+    }
   };
 
   return (
     <form onSubmit={enviar}>
-      {aviso && (
-        <p
-          className={
-            'admin__aviso' + (aviso.tipo === 'error' ? ' admin__aviso--error' : ' admin__aviso--ok')
-          }
-          role="status"
-        >
-          {aviso.texto}
-        </p>
-      )}
-
       <div className="panel">
         <p className="subtitulo-campo">Marca</p>
         <div className="campos campos--dos">

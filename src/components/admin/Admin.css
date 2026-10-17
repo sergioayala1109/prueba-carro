@@ -690,3 +690,32 @@
     justify-content: flex-start;
   }
 }
+
+/* --- Avisos con SweetAlert2 (confirmaciones y resultados) --- */
+.swal2-popup {
+  font-family: inherit;
+  border-radius: 16px;
+}
+
+.swal2-title {
+  color: var(--ciruela);
+}
+
+.swal2-html-container {
+  color: var(--tinta);
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.swal2-icon {
+  border-width: 2px;
+}
+
+.swal2-toast {
+  border-radius: 12px;
+  box-shadow: var(--sombra);
+}

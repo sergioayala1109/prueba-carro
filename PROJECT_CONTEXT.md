@@ -22,7 +22,7 @@ Incluye además un **panel de administración de demostración** (ruta `#/admin`
 
 ### Stack
 - **Vite 6** + **React 19** (JavaScript, sin TypeScript).
-- CSS propio: `src/App.css` (vitrina) y `src/components/admin/Admin.css` (panel). Sin frameworks ni librerías de UI.
+- CSS propio: `src/App.css` (vitrina) y `src/components/admin/Admin.css` (panel). Sin frameworks de UI: la única librería de interfaz es **SweetAlert2** (avisos y confirmaciones del panel, `src/utils/alertas.js`).
 - **Sin backend.** Los datos por defecto viven en `src/data/`; el panel guarda sus cambios en `localStorage`.
 - **Sin router.** La pantalla de administración se elige por el hash de la URL (`#/admin`), leído con `src/hooks/useHash.js`.
 
@@ -223,6 +223,24 @@ prueba-carro/
 - **Creados y duplicados:** un producto nuevo o una copia siempre queda al final del listado, así que se salta a la última página (`paginaFinalDe`) para que se vea recién guardado; si el guardado limpió los filtros, la página se calcula con la lista ya filtrada de nuevo.
 - **Verificado:** 12 productos → 2 páginas (`1–10 de 12`, *Anterior* deshabilitado), página 2 con 2 filas y *Siguiente* deshabilitado, filtro a 2 resultados recorta la página pedida a la 1, 20 por página muestra los 12 sin navegación, creación salta a la última página (3 filas, `11–13 de 13`), duplicado igual (4 filas), borrado recorta bien, limpiar vuelve a `1–10 de 12` y **0 errores de consola**.
 
+### Fase 14 — Avisos y confirmaciones con SweetAlert2
+- **Pedido:** usar **SweetAlert** al insertar, editar y eliminar.
+- **Dependencia nueva:** `sweetalert2` (11.26.x) con su CSS importado en el módulo de utilidad (Vite lo inyecta en el bundle).
+- **`src/utils/alertas.js`** con tres funciones, reutilizables desde cualquier componente:
+  - `confirmarAccion({titulo, texto, confirmar, cancelar, advertencia})` → `Promise<boolean>`; `true` solo si se confirma. `focusCancel: true` y `reverseButtons` para que "Cancelar" quede primero.
+  - `avisoExito(texto)` → *toast* arriba a la derecha con barra de tiempo (2,6 s), que no interrumpe el trabajo.
+  - `avisoError(texto, titulo)` → ventana con botón "Entendido" que **no se cierra sola** (los errores se tienen que leer).
+- **Colores desde las variables de la vitrina** (`confirmButtonColor: 'var(--rosa)'`, `cancelButtonColor: 'var(--borde)'`) más un bloque `.swal2-*` en `Admin.css`: títulos en ciruela, radios de 16 px (ventana) y 10 px (botones) y tipografía heredada del sitio.
+- **Reemplazos en `AdminPanel.jsx`:**
+  - `window.confirm` de **Eliminar** → ventana con icono de advertencia, *"Esta acción no se puede deshacer"* y botón "Sí, eliminar".
+  - `window.confirm` de **Restablecer originales** → ventana con lo que se pierde y botón "Sí, restablecer".
+  - Los `setAviso(...)` de **guardar (crear/editar), duplicar, eliminar, alternar destacado y restablecer** → `avisoExito`/`avisoError`; los manejadores se volvieron `async` para esperar la confirmación.
+- **`FormNegocio.jsx`:** "Datos y textos" también avisa con toast al guardar y con ventana si falla; se borró su estado `aviso`.
+- **Se eliminó el banner de estado** `{aviso && …}` del panel y del formulario (seguían `.admin__aviso--ok/--error` en el CSS por si se reutilizan). Siguen en pie: el recuadro fijo de "Demo sin seguridad real" y la validación de campos dentro del editor de producto.
+- **Bug corregido gracias al linter:** en `avisoError` se escribió `title,` (shorthand) en vez de `title: titulo`, lo que habría lanzado un `ReferenceError` en cada error.
+- **Nota de entorno:** si la pestaña del navegador está oculta, la animación de salida de SweetAlert no corre y el contenedor tarda en borrarse; no es un problema real porque el contenedor tiene `pointer-events: none` (verificado con `elementFromPoint`), así que nunca tapa la interfaz.
+- **Verificado:** crear (toast + salto de página), editar (toast), duplicar (toast), eliminar con **Cancelar** (no borra) y con confirmar (toast y lista de 12), restablecer con **Cancelar** (conserva los cambios) y confirmado (vuelve a 12 y avisa), guardar "Datos y textos" (toast), colores calculados `#c06c9f` y títulos `#581868`, fuente heredada y **0 errores de consola**. La vitrina pública no muestra restos de SweetAlert.
+
 ---
 
 ## 6. Decisiones técnicas importantes
@@ -338,3 +356,4 @@ prueba-carro/
 | Beneficios (textos fijos) | `src/components/Beneficios.jsx` | — |
 | Estructura del footer | `src/components/Footer.jsx` | — |
 | Credenciales de la demo | `src/data/admin.js` | — |
+| Avisos y confirmaciones del panel (SweetAlert2) | `src/utils/alertas.js` + bloque `.swal2-*` en `Admin.css` | — |

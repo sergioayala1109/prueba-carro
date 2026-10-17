@@ -3,6 +3,7 @@ import { nuevoId, useDatos } from '../../store/datos';
 import { useAuth } from '../../store/auth';
 import { rutaPublica } from '../../utils/urls';
 import { formatoPrecio } from '../../data/negocio';
+import { avisoError, avisoExito, confirmarAccion } from '../../utils/alertas';
 import EditorProducto from './EditorProducto';
 import FormNegocio from './FormNegocio';
 
@@ -37,7 +38,6 @@ export default function AdminPanel() {
 
   const [pestana, setPestana] = useState('productos');
   const [editor, setEditor] = useState(null);
-  const [aviso, setAviso] = useState(null);
   // Se incrementa al restablecer para que el formulario del negocio se recree
   // con los valores originales (si no, conservaría el borrador anterior).
   const [versionFormulario, setVersionFormulario] = useState(0);
@@ -137,12 +137,11 @@ export default function AdminPanel() {
           : productosFiltrados.length + (coincide(producto) ? 1 : 0);
         setPagina(paginaFinalDe(totalFinal));
       }
-      setAviso({
-        tipo: 'ok',
-        texto: `Producto "${producto.nombre}" guardado.${oculto ? ' Se limpiaron los filtros para mostrarlo.' : ''}`,
-      });
+      avisoExito(
+        `Producto "${producto.nombre}" guardado.${oculto ? ' Se limpiaron los filtros para mostrarlo.' : ''}`,
+      );
     } else {
-      setAviso({ tipo: 'error', texto: resultado.error });
+      avisoError(resultado.error, 'No se pudo guardar el producto');
     }
   };
 
@@ -159,25 +158,28 @@ export default function AdminPanel() {
       const totalFinal =
         coincide(copia) ? productosFiltrados.length + 1 : productosFiltrados.length;
       setPagina(paginaFinalDe(totalFinal));
-      setAviso({ tipo: 'ok', texto: `Se duplicó "${producto.nombre}".` });
+      avisoExito(`Se duplicó "${producto.nombre}".`);
     } else {
-      setAviso({ tipo: 'error', texto: resultado.error });
+      avisoError(resultado.error, 'No se pudo duplicar el producto');
     }
   };
 
-  const eliminarProducto = (producto) => {
-    const confirmado = window.confirm(
-      `¿Eliminar "${producto.nombre}"? Esta acción no se puede deshacer.`,
-    );
+  const eliminarProducto = async (producto) => {
+    const confirmado = await confirmarAccion({
+      titulo: `¿Eliminar "${producto.nombre}"?`,
+      texto: 'Esta acción no se puede deshacer.',
+      confirmar: 'Sí, eliminar',
+      advertencia: true,
+    });
     if (!confirmado) return;
     const resultado = guardarProductos(
       productosCrudos.filter((p) => p.id !== producto.id),
     );
-    setAviso(
-      resultado.ok
-        ? { tipo: 'ok', texto: `Se eliminó "${producto.nombre}".` }
-        : { tipo: 'error', texto: resultado.error },
-    );
+    if (resultado.ok) {
+      avisoExito(`Se eliminó "${producto.nombre}".`);
+    } else {
+      avisoError(resultado.error, 'No se pudo eliminar el producto');
+    }
   };
 
   const alternarDestacado = (producto) => {
@@ -186,7 +188,7 @@ export default function AdminPanel() {
         p.id === producto.id ? { ...p, destacado: !p.destacado } : p,
       ),
     );
-    if (!resultado.ok) setAviso({ tipo: 'error', texto: resultado.error });
+    if (!resultado.ok) avisoError(resultado.error);
   };
 
   // Un solo guardado atómico: si se hicieran dos seguidos, el segundo pisaría
@@ -194,15 +196,18 @@ export default function AdminPanel() {
   const guardarNegocioYTextos = (nuevoNegocio, nuevosTextos) =>
     guardar({ negocio: nuevoNegocio, textos: nuevosTextos });
 
-  const restablecerTodo = () => {
-    const confirmado = window.confirm(
-      '¿Descartar todos los cambios y volver a los datos originales?',
-    );
+  const restablecerTodo = async () => {
+    const confirmado = await confirmarAccion({
+      titulo: '¿Restablecer los datos originales?',
+      texto: 'Se descartan todos los cambios hechos en el catálogo, los datos del negocio y los textos.',
+      confirmar: 'Sí, restablecer',
+      advertencia: true,
+    });
     if (!confirmado) return;
     restablecer();
     setVersionFormulario((v) => v + 1);
-    setAviso({ tipo: 'ok', texto: 'Datos restablecidos a los originales del sitio.' });
     setEditor(null);
+    avisoExito('Datos restablecidos a los originales del sitio.');
   };
 
   return (
@@ -239,18 +244,6 @@ export default function AdminPanel() {
           los visitantes ni quedan en GitHub. Para que esto fuera de verdad haría
           falta un servicio con backend (Supabase, Firebase, etc.).
         </div>
-
-        {aviso && (
-          <p
-            className={
-              'admin__aviso' +
-              (aviso.tipo === 'error' ? ' admin__aviso--error' : ' admin__aviso--ok')
-            }
-            role="status"
-          >
-            {aviso.texto}
-          </p>
-        )}
 
         <div className="admin__pestanas">
           <button
