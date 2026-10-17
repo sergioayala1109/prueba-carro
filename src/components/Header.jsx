@@ -1,7 +1,9 @@
-import { negocio } from '../data/negocio';
+import { useDatos } from '../store/datos';
+import { enlaceWhatsApp } from '../utils/whatsapp';
 
 export default function Header() {
-  const whatsapp = negocio.telefonos.find((t) => t.whatsapp);
+  const { negocio } = useDatos();
+  const whatsapp = enlaceWhatsApp(negocio);
 
   return (
     <header className="header">
@@ -20,14 +22,16 @@ export default function Header() {
           <a href="#tienda">Contacto</a>
         </nav>
 
-        <a
-          className="boton boton--wa header__cta"
-          href={`https://wa.me/${whatsapp.tel.replace('+', '')}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Escríbenos
-        </a>
+        {whatsapp && (
+          <a
+            className="boton boton--wa header__cta"
+            href={whatsapp}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Escríbenos
+          </a>
+        )}
       </div>
     </header>
   );

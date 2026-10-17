@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { formatoPrecio, negocio } from '../data/negocio';
+import { formatoPrecio } from '../data/negocio';
+import { useDatos } from '../store/datos';
+import { enlaceWhatsApp } from '../utils/whatsapp';
 
 export default function ProductoModal({ producto, onCerrar }) {
-  const [imagenes, setImagenes] = useState(producto.imagenes);
+  const { negocio } = useDatos();
+  const [imagenes, setImagenes] = useState(producto.imagenes ?? []);
   const [actual, setActual] = useState(0);
   const cerrarRef = useRef(null);
 
-  const whatsapp = negocio.telefonos.find((t) => t.whatsapp);
   const total = imagenes.length;
+  const detalles = producto.detalles ?? [];
 
   const mover = useCallback(
     (paso) => {
@@ -43,10 +46,11 @@ export default function ProductoModal({ producto, onCerrar }) {
     setActual((prev) => Math.min(prev, Math.max(0, siguientes.length - 1)));
   };
 
-  const mensaje = encodeURIComponent(
+  const enlace = enlaceWhatsApp(
+    negocio,
     `¡Hola ${negocio.nombre}! Me interesa "${producto.nombre}" (${formatoPrecio(
       producto.precio,
-    )} · ${producto.medidas}). ¿Me das más información?`,
+    )}${producto.medidas ? ` · ${producto.medidas}` : ''}). ¿Me das más información?`,
   );
   const asunto = encodeURIComponent(`Consulta: ${producto.nombre}`);
 
@@ -141,28 +145,36 @@ export default function ProductoModal({ producto, onCerrar }) {
             {producto.precioAntes && <s>{formatoPrecio(producto.precioAntes)}</s>}
           </div>
 
-          <p className="modal__medidas">
-            <span aria-hidden="true">📐</span> {producto.medidas}
-          </p>
+          {producto.medidas && (
+            <p className="modal__medidas">
+              <span aria-hidden="true">📐</span> {producto.medidas}
+            </p>
+          )}
 
           <p className="modal__descripcion">{producto.descripcion}</p>
 
-          <h4 className="modal__subtitulo">Detalles</h4>
-          <ul className="modal__detalles">
-            {producto.detalles.map((detalle) => (
-              <li key={detalle}>{detalle}</li>
-            ))}
-          </ul>
+          {detalles.length > 0 && (
+            <>
+              <h4 className="modal__subtitulo">Detalles</h4>
+              <ul className="modal__detalles">
+                {detalles.map((detalle) => (
+                  <li key={detalle}>{detalle}</li>
+                ))}
+              </ul>
+            </>
+          )}
 
           <div className="modal__acciones">
-            <a
-              className="boton boton--wa"
-              href={`https://wa.me/${whatsapp.tel.replace('+', '')}?text=${mensaje}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Cotizar por WhatsApp
-            </a>
+            {enlace && (
+              <a
+                className="boton boton--wa"
+                href={enlace}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Cotizar por WhatsApp
+              </a>
+            )}
             <a
               className="boton boton--fantasma"
               href={`mailto:${negocio.correo}?subject=${asunto}`}

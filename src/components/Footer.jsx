@@ -1,7 +1,8 @@
-import { negocio } from '../data/negocio';
+import { useDatos } from '../store/datos';
+import { enlaceWhatsApp } from '../utils/whatsapp';
 
-const whatsapp = negocio.telefonos.find((t) => t.whatsapp);
-const waBase = `https://wa.me/${whatsapp.tel.replace('+', '')}`;
+// El año se calcula una vez al cargar el módulo (no en cada render).
+const ANIO = new Date().getFullYear();
 
 function IconoInstagram() {
   return (
@@ -35,7 +36,8 @@ const iconosRed = {
 };
 
 export default function Footer() {
-  const anio = new Date().getFullYear();
+  const { negocio } = useDatos();
+  const waBase = enlaceWhatsApp(negocio);
   const { direccion, informacion, horario, redes } = negocio;
   const direccionCompleta = `${direccion.calle}, ${direccion.comuna}, ${direccion.ciudad}, ${direccion.pais}`;
   const mapaUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -64,43 +66,55 @@ export default function Footer() {
                 {iconosRed[red.nombre] ?? red.nombre.charAt(0)}
               </a>
             ))}
-            <a
-              className="footer__red"
-              href={waBase}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="WhatsApp"
-              title="WhatsApp"
-            >
-              <IconoWhatsApp />
-            </a>
+            {waBase && (
+              <a
+                className="footer__red"
+                href={waBase}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="WhatsApp"
+                title="WhatsApp"
+              >
+                <IconoWhatsApp />
+              </a>
+            )}
           </div>
 
           <p className="footer__copy">
-            © {anio} {negocio.nombre}. Todos los derechos reservados.
+            © {ANIO} {negocio.nombre}. Todos los derechos reservados.
+            <br />
+            <a className="footer__admin" href="#/admin">
+              Administrar
+            </a>
           </p>
         </div>
 
         <nav className="footer__bloque" aria-label="Información">
           <h3 className="footer__titulo">Información</h3>
           <ul className="footer__lista">
-            {informacion.map((item) => (
-              <li key={item.etiqueta}>
-                <a
-                  href={
-                    item.mapa
-                      ? mapaUrl
-                      : (item.ancla ??
-                        `${waBase}?text=${encodeURIComponent(item.consulta)}`)
-                  }
-                  {...(item.ancla
-                    ? {}
-                    : { target: '_blank', rel: 'noreferrer' })}
-                >
-                  {item.etiqueta}
-                </a>
-              </li>
-            ))}
+            {informacion.map((item) => {
+              const enlace = item.mapa
+                ? mapaUrl
+                : (item.ancla ??
+                  (waBase
+                    ? `${waBase}?text=${encodeURIComponent(item.consulta)}`
+                    : null));
+
+              if (!enlace) return null;
+
+              return (
+                <li key={item.etiqueta}>
+                  <a
+                    href={enlace}
+                    {...(item.ancla
+                      ? {}
+                      : { target: '_blank', rel: 'noreferrer' })}
+                  >
+                    {item.etiqueta}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 

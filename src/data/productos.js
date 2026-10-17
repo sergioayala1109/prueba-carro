@@ -1,8 +1,8 @@
 // Catálogo de productos.
 // "imagenes": la primera es la portada; las demás forman la galería de la ficha.
 // "icono": respaldo (emoji) si una imagen no carga.
-import { rutaPublica } from '../utils/urls';
-
+// Las rutas son relativas a `public/` (ej. "/productos/foto.jpg"); el prefijo de
+// despliegue lo agrega `rutaPublica()` al renderizar.
 export const categorias = [
   'Todos',
   'Papelería',
@@ -11,7 +11,7 @@ export const categorias = [
   'Devocionales',
 ];
 
-const productosBase = [
+export const productos = [
   {
     id: 1,
     nombre: 'Agenda personalizada A5',
@@ -290,10 +290,3 @@ const productosBase = [
     destacado: false,
   },
 ];
-
-// Las imágenes viven en `public/productos/`. Prefijamos la ruta base de Vite
-// para que se vean igual en desarrollo (/) y en GitHub Pages (/prueba-carro/).
-export const productos = productosBase.map((producto) => ({
-  ...producto,
-  imagenes: producto.imagenes.map(rutaPublica),
-}));

@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
-import { formatoPrecio, negocio } from '../data/negocio';
+import { formatoPrecio } from '../data/negocio';
+import { useDatos } from '../store/datos';
+import { enlaceWhatsApp } from '../utils/whatsapp';
 
 export default function ProductoCard({ producto, onVerDetalle }) {
+  const { negocio } = useDatos();
   const [imagenFallo, setImagenFallo] = useState(false);
-  const whatsapp = negocio.telefonos.find((t) => t.whatsapp);
-  const portada = producto.imagenes[0];
+  const portada = producto.imagenes?.[0];
 
   const descuento = useMemo(
     () =>
@@ -14,11 +16,10 @@ export default function ProductoCard({ producto, onVerDetalle }) {
     [producto.precio, producto.precioAntes],
   );
 
-  const mensaje = encodeURIComponent(
-    `¡Hola ${negocio.nombre}! Me interesa "${producto.nombre}" (${formatoPrecio(
-      producto.precio,
-    )}). ¿Me das más información?`,
-  );
+  const mensaje = `¡Hola ${negocio.nombre}! Me interesa "${producto.nombre}" (${formatoPrecio(
+    producto.precio,
+  )}). ¿Me das más información?`;
+  const enlace = enlaceWhatsApp(negocio, mensaje);
 
   return (
     <article className="producto">
@@ -28,7 +29,7 @@ export default function ProductoCard({ producto, onVerDetalle }) {
         onClick={() => onVerDetalle(producto)}
         aria-label={`Ver detalles de ${producto.nombre}`}
       >
-        {!imagenFallo ? (
+        {portada && !imagenFallo ? (
           <img
             src={portada}
             alt={producto.nombre}
@@ -63,14 +64,16 @@ export default function ProductoCard({ producto, onVerDetalle }) {
           >
             Ver detalles
           </button>
-          <a
-            className="boton boton--wa boton--bloque"
-            href={`https://wa.me/${whatsapp.tel.replace('+', '')}?text=${mensaje}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Cotizar por WhatsApp
-          </a>
+          {enlace && (
+            <a
+              className="boton boton--wa boton--bloque"
+              href={enlace}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Cotizar por WhatsApp
+            </a>
+          )}
         </div>
       </div>
     </article>

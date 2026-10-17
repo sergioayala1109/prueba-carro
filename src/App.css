@@ -646,6 +646,16 @@ img {
   color: #b598bb;
 }
 
+.footer__admin {
+  color: #b598bb;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer__admin:hover {
+  color: var(--blanco);
+}
+
 .footer__titulo {
   margin: 0 0 1rem;
   font-family: 'Inter', sans-serif;

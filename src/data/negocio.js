@@ -3,8 +3,6 @@
 export const negocio = {
   nombre: 'Monsant',
   eslogan: 'Estudio creativo',
-  descripcion:
-    '¡Holiii! Soy Monse y quiero invitarte a conocer mi pequeño mundo lleno de creatividad, sueños y muchas cositas bonitas: agendas, planners, tarjetas, cake toppers y devocionales personalizados.',
   mision:
     'En Monsant creamos papelería y regalos personalizados que te ayudan a organizar tu tiempo y a regalar con significado. Cada pieza está hecha a mano, con calidez y cuidado por los detalles, desde Constitución para todo Chile.',
   direccion: {

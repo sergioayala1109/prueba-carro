@@ -1,23 +1,29 @@
 import { useMemo, useState } from 'react';
-import { categorias, productos } from '../data/productos';
+import { useDatos } from '../store/datos';
 import ProductoCard from './ProductoCard';
 
 export default function Catalogo({ onVerDetalle }) {
+  const { categorias, productos } = useDatos();
   const [categoriaActiva, setCategoriaActiva] = useState('Todos');
   const [busqueda, setBusqueda] = useState('');
+
+  // Si la categoría activa desaparece (porque se editaron productos), volvemos a "Todos".
+  const categoriaEfectiva = categorias.includes(categoriaActiva)
+    ? categoriaActiva
+    : 'Todos';
 
   const productosFiltrados = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
     return productos.filter((producto) => {
       const coincideCategoria =
-        categoriaActiva === 'Todos' || producto.categoria === categoriaActiva;
+        categoriaEfectiva === 'Todos' || producto.categoria === categoriaEfectiva;
+      const nombre = (producto.nombre ?? '').toLowerCase();
+      const descripcion = (producto.descripcion ?? '').toLowerCase();
       const coincideBusqueda =
-        texto === '' ||
-        producto.nombre.toLowerCase().includes(texto) ||
-        producto.descripcion.toLowerCase().includes(texto);
+        texto === '' || nombre.includes(texto) || descripcion.includes(texto);
       return coincideCategoria && coincideBusqueda;
     });
-  }, [categoriaActiva, busqueda]);
+  }, [categoriaEfectiva, busqueda, productos]);
 
   return (
     <section className="catalogo" id="catalogo">
@@ -38,9 +44,9 @@ export default function Catalogo({ onVerDetalle }) {
                 key={categoria}
                 type="button"
                 role="tab"
-                aria-selected={categoriaActiva === categoria}
+                aria-selected={categoriaEfectiva === categoria}
                 className={
-                  'filtro' + (categoriaActiva === categoria ? ' filtro--activo' : '')
+                  'filtro' + (categoriaEfectiva === categoria ? ' filtro--activo' : '')
                 }
                 onClick={() => setCategoriaActiva(categoria)}
               >

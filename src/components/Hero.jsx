@@ -1,4 +1,4 @@
-import { negocio } from '../data/negocio';
+import { useDatos } from '../store/datos';
 import { rutaPublica } from '../utils/urls';
 
 const collage = [
@@ -9,6 +9,8 @@ const collage = [
 ].map((foto) => ({ ...foto, src: rutaPublica(foto.src) }));
 
 export default function Hero() {
+  const { negocio, textos } = useDatos();
+  const { hero } = textos;
   const { direccion } = negocio;
   const mapaUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${direccion.calle}, ${direccion.comuna}, ${direccion.ciudad}, ${direccion.pais}`,
@@ -18,12 +20,12 @@ export default function Hero() {
     <section className="hero" id="inicio">
       <div className="contenedor hero__interior">
         <div className="hero__texto">
-          <p className="hero__etiqueta">Estudio creativo · Hecho a mano</p>
+          <p className="hero__etiqueta">{hero.etiqueta}</p>
           <h1>
-            Cositas bonitas que llevan
-            <span className="hero__resaltado"> tu nombre</span>
+            {hero.titulo}
+            <span className="hero__resaltado">{hero.resaltado}</span>
           </h1>
-          <p className="hero__descripcion">{negocio.descripcion}</p>
+          <p className="hero__descripcion">{hero.descripcion}</p>
 
           <div className="hero__acciones">
             <a className="boton boton--primario" href="#catalogo">
@@ -40,9 +42,9 @@ export default function Hero() {
           </div>
 
           <ul className="hero__ventajas">
-            <li>✂️ Diseño a tu medida</li>
-            <li>🚚 Envíos a todo el país</li>
-            <li>⏱️ Entrega en 3 a 5 días</li>
+            {hero.ventajas.map((ventaja, indice) => (
+              <li key={indice}>{ventaja}</li>
+            ))}
           </ul>
         </div>
 
